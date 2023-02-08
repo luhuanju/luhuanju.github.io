@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Grant McConnaughey</title>
-    <description>My name is Grant McConnaughey. I&apos;m a software developer specializing in Python, Django, Vue.js, and AWS. I lead software teams and mentor others to become leaders themselves.</description>
+    <title>HUANJU LU</title>
+    <description>My name is Huanju. I&apos;m a software developer specializing in Java, Python and AWS. I have a website that I developed independently using React and JavaScript. I like new technologies and have experience in solving problems in real-world scenarios.</description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Tue, 07 Feb 2023 19:33:48 -0600</pubDate>
-    <lastBuildDate>Tue, 07 Feb 2023 19:33:48 -0600</lastBuildDate>
+    <pubDate>Wed, 08 Feb 2023 08:27:47 +0000</pubDate>
+    <lastBuildDate>Wed, 08 Feb 2023 08:27:47 +0000</lastBuildDate>
     <generator>Jekyll v3.9.0</generator>
     
       <item>
@@ -69,7 +69,7 @@
 
 &lt;p&gt;&lt;strong&gt;Favorite track:&lt;/strong&gt; “Scattered and Lost”&lt;/p&gt;
 </description>
-        <pubDate>Tue, 12 May 2020 03:00:00 -0500</pubDate>
+        <pubDate>Tue, 12 May 2020 08:00:00 +0000</pubDate>
         <link>http://localhost:4000/blog/2020/05/12/programming-music/</link>
         <guid isPermaLink="true">http://localhost:4000/blog/2020/05/12/programming-music/</guid>
         
@@ -124,7 +124,7 @@
 
 &lt;p&gt;That’s it for today’s update. If you’d like to submit feedback or request a feature then send an email to &lt;a href=&quot;mailto:PostponeReddit@gmail.com&quot;&gt;PostponeReddit@gmail.com&lt;/a&gt; or message me &lt;a href=&quot;https://twitter.com/gmcconnaughey&quot;&gt;on Twitter&lt;/a&gt;.&lt;/p&gt;
 </description>
-        <pubDate>Sun, 19 Apr 2020 03:00:00 -0500</pubDate>
+        <pubDate>Sun, 19 Apr 2020 08:00:00 +0000</pubDate>
         <link>http://localhost:4000/blog/2020/04/19/postpone-now-supports-bulk-imports/</link>
         <guid isPermaLink="true">http://localhost:4000/blog/2020/04/19/postpone-now-supports-bulk-imports/</guid>
         
@@ -198,7 +198,7 @@
 
 &lt;p&gt;That is it for now. Stay tuned for additional updates in the coming weeks and months!&lt;/p&gt;
 </description>
-        <pubDate>Mon, 30 Mar 2020 03:00:00 -0500</pubDate>
+        <pubDate>Mon, 30 Mar 2020 08:00:00 +0000</pubDate>
         <link>http://localhost:4000/blog/2020/03/30/postpones-first-major-update/</link>
         <guid isPermaLink="true">http://localhost:4000/blog/2020/03/30/postpones-first-major-update/</guid>
         
@@ -286,7 +286,7 @@
 
 &lt;p&gt;Happy Postponing!&lt;/p&gt;
 </description>
-        <pubDate>Mon, 16 Mar 2020 03:00:00 -0500</pubDate>
+        <pubDate>Mon, 16 Mar 2020 08:00:00 +0000</pubDate>
         <link>http://localhost:4000/blog/2020/03/16/announcing-postpone/</link>
         <guid isPermaLink="true">http://localhost:4000/blog/2020/03/16/announcing-postpone/</guid>
         
@@ -359,7 +359,7 @@
 
 &lt;p&gt;I also like to joke! Life is too short to not enjoy it, so I try to enjoy everything, even the “serious” stuff like work. If I say something on Slack and you think I might be joking then I probably am. If you’re not sure then you’re always free to ask! When giving directions, I will state these directions clearly and without humor, so that there is no room for misinterpreting.&lt;/p&gt;
 </description>
-        <pubDate>Tue, 03 Mar 2020 02:00:00 -0600</pubDate>
+        <pubDate>Tue, 03 Mar 2020 08:00:00 +0000</pubDate>
         <link>http://localhost:4000/blog/2020/03/03/manager-readme/</link>
         <guid isPermaLink="true">http://localhost:4000/blog/2020/03/03/manager-readme/</guid>
         
@@ -437,7 +437,7 @@
   &lt;li&gt;&lt;a href=&quot;http://github.com/grantmcconnaughey/flake8rules&quot;&gt;Flake8Rules&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 </description>
-        <pubDate>Tue, 25 Feb 2020 02:00:00 -0600</pubDate>
+        <pubDate>Tue, 25 Feb 2020 08:00:00 +0000</pubDate>
         <link>http://localhost:4000/blog/2020/02/25/automate-python-code-quality/</link>
         <guid isPermaLink="true">http://localhost:4000/blog/2020/02/25/automate-python-code-quality/</guid>
         
@@ -488,7 +488,7 @@
   &lt;li&gt;Increase Twitter follower count to 500.&lt;/li&gt;
 &lt;/ul&gt;
 </description>
-        <pubDate>Tue, 14 Jan 2020 02:00:00 -0600</pubDate>
+        <pubDate>Tue, 14 Jan 2020 08:00:00 +0000</pubDate>
         <link>http://localhost:4000/blog/2020/01/14/2020-okrs/</link>
         <guid isPermaLink="true">http://localhost:4000/blog/2020/01/14/2020-okrs/</guid>
         
@@ -549,7 +549,7 @@
   &lt;li&gt;Captain Marvel&lt;/li&gt;
 &lt;/ol&gt;
 </description>
-        <pubDate>Fri, 03 Jan 2020 02:00:00 -0600</pubDate>
+        <pubDate>Fri, 03 Jan 2020 08:00:00 +0000</pubDate>
         <link>http://localhost:4000/blog/2020/01/03/favorite-films-of-2019/</link>
         <guid isPermaLink="true">http://localhost:4000/blog/2020/01/03/favorite-films-of-2019/</guid>
         
@@ -670,7 +670,7 @@ So far Lintly hasn’t cost that much. Here’s a breakdown of what I’ve spent
 
 &lt;p&gt;I build it because it’s fun.&lt;/p&gt;
 </description>
-        <pubDate>Wed, 15 Feb 2017 02:00:00 -0600</pubDate>
+        <pubDate>Wed, 15 Feb 2017 08:00:00 +0000</pubDate>
         <link>http://localhost:4000/blog/2017/02/15/launching-lintly/</link>
         <guid isPermaLink="true">http://localhost:4000/blog/2017/02/15/launching-lintly/</guid>
         
@@ -823,7 +823,7 @@ POST /hooks/handle_github/            202 Accepted
 
 &lt;p&gt;In this post I discussed &lt;strong&gt;what webhooks are&lt;/strong&gt; and why they’re useful. Next I showed you &lt;strong&gt;how to handle webhooks&lt;/strong&gt; in a Django app using a view function. Then I made a derivative joke involving a beloved American game show. After that I showed you how to &lt;strong&gt;configure your local development&lt;/strong&gt; machine to handle webhooks over the Internet. Finally, we proved that &lt;strong&gt;all of this actually works&lt;/strong&gt;.&lt;/p&gt;
 </description>
-        <pubDate>Mon, 23 Jan 2017 15:10:00 -0600</pubDate>
+        <pubDate>Mon, 23 Jan 2017 21:10:00 +0000</pubDate>
         <link>http://localhost:4000/blog/2017/01/23/handling-webhooks-using-django-and-ngrok/</link>
         <guid isPermaLink="true">http://localhost:4000/blog/2017/01/23/handling-webhooks-using-django-and-ngrok/</guid>
         

@@ -1,12 +1,12 @@
 # Site settings
 title: HUANJU LU
 email: huanjulu@outlook.com
-description: "My name is Huanju. I'm a software developer specializing in Python, Django, Vue.js, and AWS. I lead software teams and mentor others to become leaders themselves."
+description: "My name is Huanju. I'm a software developer specializing in Java, Python and AWS. I have a website that I developed independently using React and JavaScript. I like new technologies and have experience in solving problems in real-world scenarios."
 baseurl: ""
-url: "http://www.grantmcconnaughey.com"
-username: grantmcconnaughey
-timezone: America/Chicago
-twitter_username: gmcconnaughey
+url: ""
+username: Huanju
+timezone: America/Seattle
+twitter_username: 
 
 # Build settings
 markdown: kramdown
