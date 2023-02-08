@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Mistakes I Made Writing a Django App (and How I Fixed Them) | Grant McConnaughey</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <meta name="description" content="Grant McConnaughey, full-stack software engineer and technical lead based in Madison, Wisconsin." />
+    <link rel="canonical" href="http://localhost:4000/blog/2017/01/16/django-mistakes/" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/images/favicons/favicon-16x16.png">
+    <link rel="manifest" href="/images/favicons/site.webmanifest">
+
+    <!-- Twitter cards -->
+    <meta name="twitter:site"    content="@gmcconnaughey">
+    <meta name="twitter:creator" content="@gmcconnaughey">
+    <meta name="twitter:title"   content="Mistakes I Made Writing a Django App (and How I Fixed Them)">
+
+    
+    <meta name="twitter:description" content="I recently announced the release of a project I’ve been working on for a few months. The project is called Lintly. It is a continuous Python code quality checking tool that lints your code when you push to GitHub. I won’t go into detail about what Lintly is here —...">
+    
+
+    
+    <meta name="twitter:card"  content="summary">
+    <meta name="twitter:image" content="http://localhost:4000/images/favicons/android-chrome-512x512.png">
+    
+    <!-- end of Twitter cards -->
+
+    <!-- OpenGraph -->
+    <meta property="og:title" content="Mistakes I Made Writing a Django App (and How I Fixed Them)" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="http://localhost:4000/blog/2017/01/16/django-mistakes/" />
+    <meta property="og:image" content="http://localhost:4000/images/favicons/android-chrome-512x512.png" />
+
+    <link rel="stylesheet" href="/css/pure-min.css" />
+    <link rel="stylesheet" href="/css/grids-responsive-min.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/magnific-popup.css" />
+    <link rel="stylesheet" href="/css/main.css" />
+
+    <script src="https://kit.fontawesome.com/43d71026bd.js" crossorigin="anonymous"></script>
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-51900491-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+</head>
+
+<body>
+
+    <header class="site-header">
+
+  <div class="wrap">
+
+    <a class="site-title" href="/">Grant McConnaughey</a>
+
+    <nav class="site-nav">
+      <div class="trigger">
+        <a class="page-link" href="/projects/"><i class="fad fa-laptop-code"></i> Projects</a>
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+    <div class="page-content">
+        <div class="wrap">
+            <div class="post">
+
+    
+
+    <header class="post-header">
+        <h1>Mistakes I Made Writing a Django App (and How I Fixed Them)</h1>
+        <p class="meta">
+            <i class="fad fa-calendar-alt"></i> January 16, 2017
+            • <i class="fad fa-clock"></i> 12 min read •
+            
+                <span class="tag"><i class="fad fa-tags"></i> django</span>
+            
+        </p>
+    </header>
+
+    <article class="post-content">
+        <p>I recently announced the release of a project I’ve been working on for a few months. The project is called Lintly. It is a continuous Python code quality checking tool that lints your code when you push to GitHub. I won’t go into detail about what Lintly is here — you can read about that in the other blog post or go to lintly.com. Instead, I’d like to discuss my experience creating my first proper side project, some of the mistakes that I made writing it, and how I fixed the mistakes.</p>
+
+<p><strong>Technical Note:</strong> Lintly is a Django 1.9 application that runs on Python 2.7.</p>
+      <h3 id="the-mistakes">
+        
+        
+          The Mistakes <a href="#the-mistakes" class="anchor">#</a>
+        
+        
+      </h3>
+
+<ul>
+  <li>
+    <p>Mistake #1: Making functions do too much</p>
+  </li>
+  <li>
+    <p>Mistake #2: Using magic strings</p>
+  </li>
+  <li>
+    <p>Mistake #3: Putting third-party API calls everywhere</p>
+  </li>
+  <li>
+    <p>Mistake #4: Feature creep</p>
+  </li>
+  <li>
+    <p>Mistake #5: Comparing my app to others</p>
+  </li>
+</ul>
+    
+      <h2 id="mistake-1-making-functions-do-too-much">
+        
+        
+          Mistake #1: Making functions do too much <a href="#mistake-1-making-functions-do-too-much" class="anchor">#</a>
+        
+        
+      </h2>
+
+<p>My, how code can become a big bowl of spaghetti very quickly. And don’t get me wrong, I love a good bowl of spaghetti. But when it comes to code, I’m not a fan.</p>
+
+<p>This mistake was mostly made out of laziness. I wrote functions that were too large, did too much, and knew about things they had no business knowing about. It turns out this trap is very easy to get into when you dive in coding without much planning. Let me give you an example.</p>
+
+<p>The two methods below are a part of the Build class. A build occurs when Lintly pulls down code from GitHub, lints it, stores the results, and sends out notifications. Here’s how a Build linted a repo originally:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">lint_entire_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">local_repo_path</span><span class="p">):</span>
+    <span class="s">"""Runs quality checks on the local repo and returns the output as a string."""</span>
+    <span class="bp">self</span><span class="p">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">BUILD_RUNNING</span>
+    <span class="bp">self</span><span class="p">.</span><span class="n">save</span><span class="p">()</span>
+
+    <span class="n">process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="p">.</span><span class="n">Popen</span><span class="p">([</span><span class="s">'flake8'</span><span class="p">,</span> <span class="n">local_repo_path</span><span class="p">],</span>
+                               <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="p">.</span><span class="n">PIPE</span><span class="p">,</span>
+                               <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="p">.</span><span class="n">PIPE</span><span class="p">,</span>
+                               <span class="n">shell</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+    <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">process</span><span class="p">.</span><span class="n">communicate</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">stdout</span>
+
+<span class="k">def</span> <span class="nf">parse_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">local_repo_path</span><span class="p">,</span> <span class="n">raw_results</span><span class="p">):</span>
+    <span class="s">"""Parses flake8 output into a dict of files with issues."""</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">raw_results</span><span class="p">.</span><span class="n">replace</span><span class="p">(</span><span class="n">local_repo_path</span><span class="p">,</span> <span class="s">''</span><span class="p">)</span>
+    <span class="n">file_issues</span> <span class="o">=</span> <span class="n">collections</span><span class="p">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+
+    <span class="n">regex</span> <span class="o">=</span> <span class="n">re</span><span class="p">.</span><span class="nb">compile</span><span class="p">(</span><span class="sa">r</span><span class="s">'^(?P&lt;path&gt;.*):(?P&lt;line&gt;\d+):(?P&lt;column&gt;\d+): (?P&lt;code&gt;\w\d+) (?P&lt;message&gt;.*)$'</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">results</span><span class="p">.</span><span class="n">strip</span><span class="p">().</span><span class="n">splitlines</span><span class="p">():</span>
+        <span class="n">clean_line</span> <span class="o">=</span> <span class="n">line</span><span class="p">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">regex</span><span class="p">.</span><span class="n">match</span><span class="p">(</span><span class="n">clean_line</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="n">path</span> <span class="o">=</span> <span class="n">match</span><span class="p">.</span><span class="n">group</span><span class="p">(</span><span class="s">'path'</span><span class="p">)</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">'line'</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="p">.</span><span class="n">group</span><span class="p">(</span><span class="s">'line'</span><span class="p">)),</span>
+            <span class="s">'column'</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="p">.</span><span class="n">group</span><span class="p">(</span><span class="s">'column'</span><span class="p">)),</span>
+            <span class="s">'code'</span><span class="p">:</span> <span class="n">match</span><span class="p">.</span><span class="n">group</span><span class="p">(</span><span class="s">'code'</span><span class="p">),</span>
+            <span class="s">'message'</span><span class="p">:</span> <span class="n">match</span><span class="p">.</span><span class="n">group</span><span class="p">(</span><span class="s">'message'</span><span class="p">)</span>
+        <span class="p">}</span>
+
+        <span class="n">violations</span><span class="p">[</span><span class="n">path</span><span class="p">].</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">violations</span>
+</code></pre></div></div>
+
+<p>This is rough, and a clear violation of the <a href="https://en.wikipedia.org/wiki/Single_responsibility_principle">Single Responsibility Principle</a>, which states the following:</p>
+<blockquote>
+  <p>A class should have only one reason to change.</p>
+</blockquote>
+
+<p>In this example, a Build does more than it should. It knows about the flake8 CLI and also parses the results of flake8. It should really hand all of this (linting + parsing) off to another class.</p>
+    
+      <h3 id="how-i-fixed-the-mistake">
+        
+        
+          How I fixed the mistake <a href="#how-i-fixed-the-mistake" class="anchor">#</a>
+        
+        
+      </h3>
+
+<p>I decided to create a new Linter class that would house the logic that could be shared between all linters. Builds could instantiate a linter and use that instead of doing the linting themselves.</p>
+
+<p>Here was my second attempt:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="bp">self</span><span class="p">.</span><span class="n">linter</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">get_linter</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">lint_entire_project</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="s">"""Lints the local repo and returns the violations found."""</span>
+    <span class="bp">self</span><span class="p">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">BUILD_RUNNING</span>
+    <span class="bp">self</span><span class="p">.</span><span class="n">save</span><span class="p">()</span>
+
+    <span class="n">violations</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">linter</span><span class="p">.</span><span class="n">lint</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">violations</span>
+</code></pre></div></div>
+
+<p>Much better! A build is no longer running CLI tools on the command line and no longer parsing its own results. This is much more extensible as well, as the flake8 tool is no longer hard-coded into the build. It will be a lot easier to add linters in the future.</p>
+    
+      <h2 id="mistake-2-using-magic-strings">
+        
+        
+          Mistake #2: Using magic strings <a href="#mistake-2-using-magic-strings" class="anchor">#</a>
+        
+        
+      </h2>
+
+<p>Currently, Lintly only works with GitHub. In a future release, I plan to make Lintly work with other services like GitLab and BitBucket. That’s why URLs are in the form of /gh/dashboard/ or /gh/new/. The gh portion stands for GitHub. When you go to a page in Lintly, you go there in the context of an external Git service. That way the backend code knows which API tokens to use, which repos to show you, and which organizations to show you.</p>
+
+<p>This is what the URL looks like:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>url(r'^(?P&lt;service&gt;gh|dummy)/',
+ include('lintly.apps.projects.urls', namespace='projects')),
+</code></pre></div></div>
+
+<p>And here is how that maps to a view function:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">@</span><span class="n">login_required</span>
+<span class="k">def</span> <span class="nf">dashboard</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
+    <span class="n">projects</span> <span class="o">=</span> <span class="n">request</span><span class="p">.</span><span class="n">user</span><span class="p">.</span><span class="n">get_projects</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s">'project/dashboard.html'</span><span class="p">,</span> <span class="p">{</span><span class="s">'projects'</span><span class="p">:</span> <span class="n">projects</span><span class="p">})</span>
+</code></pre></div></div>
+
+<p>That looks okay. The URL ensures that the service variable will only ever be gh or dummy (more on dummy later). In the future, I can add gl and bb so that URLs and views work with GitLab and BitBucket respectively.</p>
+
+<p>The problem was in my templates. My templates would hard-code the gh variable all over the place. For example, here’s what a button would look like:</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"{% url "</span><span class="na">project:add_projects</span><span class="err">"</span> <span class="err">"</span><span class="na">gh</span><span class="err">"</span> <span class="err">%}"</span> <span class="na">class=</span><span class="s">"btn btn-primary"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;em</span> <span class="na">class=</span><span class="s">"icon-plus"</span><span class="nt">&gt;&lt;/em&gt;</span> Add Projects
+<span class="nt">&lt;/a&gt;</span>
+</code></pre></div></div>
+    
+      <h3 id="how-i-fixed-the-mistake-1">
+        
+        
+          How I fixed the mistake <a href="#how-i-fixed-the-mistake-1" class="anchor">#</a>
+        
+        
+      </h3>
+
+<p>To fix this I introduce a new service variable into all templates. This variable can be passed to URLs so that all URLs are relative to the current page’s service. I did this via a context processor:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Future git services will go here
+</span><span class="n">GITHUB</span> <span class="o">=</span> <span class="s">'gh'</span>
+<span class="n">DUMMY</span> <span class="o">=</span> <span class="s">'dummy'</span>
+
+<span class="k">def</span> <span class="nf">service</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">services</span> <span class="o">=</span> <span class="p">(</span><span class="n">GITHUB</span><span class="p">,</span> <span class="n">DUMMY</span><span class="p">)</span>
+    <span class="n">the_service</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">for</span> <span class="n">_service</span> <span class="ow">in</span> <span class="n">services</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">request</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">'/{}/'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">_service</span><span class="p">)):</span>
+            <span class="n">the_service</span> <span class="o">=</span> <span class="n">_service</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="s">'service'</span><span class="p">:</span> <span class="n">the_service</span><span class="p">}</span>
+</code></pre></div></div>
+
+<p>Now when I need a URL, I simply pass along the service to the url template tag:</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"{% url "</span><span class="na">project:add_projects</span><span class="err">"</span> <span class="na">service</span> <span class="err">%}"</span> <span class="na">class=</span><span class="s">"btn btn-primary"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;em</span> <span class="na">class=</span><span class="s">"icon-plus"</span><span class="nt">&gt;&lt;/em&gt;</span> Add Projects
+<span class="nt">&lt;/a&gt;</span>
+</code></pre></div></div>
+    
+      <h2 id="mistake-3-putting-third-party-api-calls-everywhere">
+        
+        
+          Mistake #3: Putting third-party API calls everywhere <a href="#mistake-3-putting-third-party-api-calls-everywhere" class="anchor">#</a>
+        
+        
+      </h2>
+
+<p>Lintly uses several third-party APIs, the most important of which is the GitHub API.</p>
+
+<p>I started out putting API calls directly in my views, models, and template tags. For example, here’s what the <code class="language-plaintext highlighter-rouge">User.get_projects()</code> method looked like originally:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">get_projects</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">client</span> <span class="o">=</span> <span class="n">Github</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">access_token</span><span class="p">)</span>
+    <span class="n">owner_logins</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">org</span><span class="p">.</span><span class="n">login</span> <span class="k">for</span> <span class="n">org</span> <span class="ow">in</span> <span class="n">client</span><span class="p">.</span><span class="n">get_user</span><span class="p">().</span><span class="n">get_orgs</span><span class="p">())</span>
+    <span class="n">owner_logins</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">username</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Project</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nb">filter</span><span class="p">(</span><span class="n">owner__login__in</span><span class="o">=</span><span class="n">owner_logins</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Notice that this creates a Github client object directly (the Github client comes from the great <a href="https://github.com/PyGithub/PyGithub">PyGithub</a> library). Unfortunately, the get_projects method was called from the project sidebar (the sidebar on the left-hand side of each and every page while logged into Lintly). This meant I had to mock the <code class="language-plaintext highlighter-rouge">get_projects</code> method on every single view test…quite the nightmare!</p>
+    
+      <h3 id="how-i-fixed-the-mistake-2">
+        
+        
+          How I fixed the mistake <a href="#how-i-fixed-the-mistake-2" class="anchor">#</a>
+        
+        
+      </h3>
+
+<p>I made this change along with the change in Mistake #2. That’s right, the good ol’ service variable.</p>
+
+<p>First, I refactored all interactions with GitHub into their own class: the GitHubBackend class. This is a simple wrapper around the PyGithub library. I also created a <a href="http://www.martinfowler.com/articles/mocksArentStubs.html">Stub object</a> called DummyGitBackend that would simulate the interactions with an external Git service (like GitHub).</p>
+
+<p>Now when I need to call an external service I get a GitBackend instance depending on the service. In production, service is always ‘gh’, which means we always use the GitHubBackend class to make API calls. In unit tests, service is always ‘dummy’, and the DummyGitBackend stub class is used. This ensures that my tests never call out to GitHub.</p>
+
+<p>Here is the new implementation of <code class="language-plaintext highlighter-rouge">User.get_projects()</code>:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># This dict lives in its own file
+</span><span class="n">git_clients</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">GITHUB</span><span class="p">:</span> <span class="n">GitHubBackend</span><span class="p">,</span>
+    <span class="n">DUMMY</span><span class="p">:</span> <span class="n">DummyGitBackend</span>
+<span class="p">}</span>
+
+<span class="k">def</span> <span class="nf">get_projects</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
+    <span class="c1"># Dynamic based on the service
+</span>    <span class="n">GitBackend</span> <span class="o">=</span> <span class="n">git_clients</span><span class="p">[</span><span class="n">service</span><span class="p">]</span>
+    <span class="n">git_client</span> <span class="o">=</span> <span class="n">GitBackend</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+    <span class="n">repo_full_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="p">.</span><span class="n">full_name</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">git_client</span><span class="p">.</span><span class="n">get_user_repos</span><span class="p">()]</span>
+    <span class="n">projects</span> <span class="o">=</span> <span class="n">Project</span><span class="p">.</span><span class="n">objects</span><span class="p">.</span><span class="nb">filter</span><span class="p">(</span><span class="n">full_name__in</span><span class="o">=</span><span class="n">repo_full_names</span><span class="p">,</span> <span class="n">service</span><span class="o">=</span><span class="n">service</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">projects</span>
+</code></pre></div></div>
+    
+      <h2 id="mistake-4-feature-creep">
+        
+        
+          Mistake #4: Feature creep <a href="#mistake-4-feature-creep" class="anchor">#</a>
+        
+        
+      </h2>
+
+<p>I love using <a href="https://trello.com">Trello</a> for simple project management. That’s why I used it for Lintly.</p>
+
+<p>For Lintly, I have a Trello board with 4 columns:</p>
+
+<ol>
+  <li>To-Do - v1.0</li>
+  <li>To-Do - Beta</li>
+  <li>Doing</li>
+  <li>Done</li>
+</ol>
+
+<p>My workflow was simple: pull cards from the <strong>Beta</strong> lane and move them into the <strong>Doing</strong> lane. When I finished the feature, I would commit the code and move the card from <strong>Doing</strong> to <strong>Done</strong>. When all items in <strong>Beta</strong> were finished, then the <strong>Beta</strong> was ready to release.</p>
+
+<p><img src="https://cdn-images-1.medium.com/max/5760/1*eHZuRA-IwOJp0NLix3ahfQ.png" alt="My trusty Trello board" /><em>My trusty Trello board</em></p>
+
+<p>This sounds simple enough, right? The problem is how easy it is to move items from <strong>v1.0</strong> to <strong>Beta</strong>. I would sometimes see a feature in the <strong>v1.0</strong> lane and convince myself that I could easily throw that into the <strong>Beta</strong> as well. This may not seem like a big deal, but doing that over and over again ensured that I would miss my own personal deadlines to have the Lintly beta released.</p>
+    
+      <h3 id="how-i-fixed-my-mistake">
+        
+        
+          How I fixed my mistake <a href="#how-i-fixed-my-mistake" class="anchor">#</a>
+        
+        
+      </h3>
+
+<p>I created a second Trello board called “Lintly v1.0” and moved the <strong>To-Do - v1.0</strong> lane over to that board. Just the simple act of making the lane harder to see on a daily basis meant that I was much less likely to move its cards over to the <strong>Beta</strong>.</p>
+
+<p>Stay focused when you are working on a beta. Figure out which features are an absolute must and ignore all the rest until the beta is released.</p>
+    
+      <h2 id="mistake-5-comparing-my-app-to-others">
+        
+        
+          Mistake #5: Comparing my app to others <a href="#mistake-5-comparing-my-app-to-others" class="anchor">#</a>
+        
+        
+      </h2>
+
+<p>Unless you are creating an app that is based on an entirely original idea, you’ll probably find yourself making this same mistake. The mistake is comparing your app (and perhaps even yourself) to others.</p>
+
+<p>I thought of the idea for Lintly in June while I was driving my wife and I home from our honeymoon. I broke international car-napping laws and woke my wife up to have her type a note on my phone. The note was four words: Flake8 As A Service.</p>
+
+<p>At the time this seemed wholly original. I couldn’t believe that no one else had thought of this! We have sites like <a href="https://codecov.io">CodeCov</a> that continuously check your code’s test coverage, so why not have the same for linting. I had to make this quickly.</p>
+
+<p>As I started working on Lintly over the next month or two I realized that I was less original than I thought. There were other sites like Landscape, which lints Python, or HoundCI, which comments on GitHub PRs. This realization was certainly disappointing. Those apps are great and I feared I could never make anything as good as them. I stop working on Lintly for at a time due to discouragement.</p>
+    
+      <h3 id="how-i-fixed-the-mistake-3">
+        
+        
+          How I fixed the mistake <a href="#how-i-fixed-the-mistake-3" class="anchor">#</a>
+        
+        
+      </h3>
+
+<p>Finally, something clicked, and that something is what helped me push through and finally release Lintly. That was the realization of two things:</p>
+
+<ol>
+  <li>Competition is a good thing</li>
+  <li><a href="https://simpleprogrammer.com/2016/11/23/side-projects/">Everyone needs a side project</a></li>
+</ol>
+
+<p>There will almost certainly always be competition for an application you are making, and that is perfectly fine. All you can do is make the application the best that you can and enjoy working on it. And if nothing else, it will always look good on a resumé!</p>
+    
+      <h2 id="conclusion">
+        
+        
+          Conclusion <a href="#conclusion" class="anchor">#</a>
+        
+        
+      </h2>
+
+<p>Lintly isn’t perfect and it never will be. As you can see, I made lots of mistakes making it. But I also learned a lot about creating projects from start to (kind of) finish and about releasing them. It was a lot of fun to make and it will continue to be fun to work on as I add new features like Python 3 support and support for other linters.</p>
+    </article>
+
+    <hr style="margin-top: 3em; margin-bottom: 3em;" />
+
+    <div>
+        <form style="text-align:center;"
+              class="pure-form"
+              action="https://tinyletter.com/grantmcconnaughey"
+              method="post"
+              target="popupwindow"
+              onsubmit="window.open('https://tinyletter.com/grantmcconnaughey', 'popupwindow', 'scrollbars=yes,width=800,height=600');return true">
+            <p>
+                Sign up to receive e-mail updates in your inbox:
+            </p>
+            <input type="text" name="email" id="tlemail" placeholder="Enter your email address" style="min-width: 22rem;" />
+            <input type="hidden" value="1" name="embed" />
+            <input type="submit" value="Subscribe" class="pure-button pure-button-primary" />
+            <p>
+                <small><a href="https://tinyletter.com" target="_blank">powered by TinyLetter</a></small>
+            </p>
+        </form>
+    </div>
+
+</div>
+        </div>
+    </div>
+
+    <footer class="site-footer">
+    <div class="wrap">
+        <div class="pure-g">
+            <div class="pure-u-1 pure-u-sm-1-3">
+                <h3>Find Me</h3>
+
+                <ul class="pure-g">
+                    <li class="pure-u-1-2 pure-u-sm-1">
+                        <a href="https://techhub.social/@grantmc">
+                            <span class="icon"><i class="fab fa-mastodon"></i></span>Mastodon
+                        </a>
+                    </li>
+                    <li class="pure-u-1-2 pure-u-sm-1">
+                        <a href="https://www.instagram.com/grantmcconnaughey/">
+                            <span class="icon"><i class="fab fa-instagram"></i></span>Instagram
+                        </a>
+                    </li>
+                    <li class="pure-u-1-2 pure-u-sm-1">
+                        <a href="https://github.com/grantmcconnaughey">
+                            <span class="icon"><i class="fab fa-github"></i></span>GitHub
+                        </a>
+                    </li>
+                    <li class="pure-u-1-2 pure-u-sm-1">
+                        <a href="https://www.linkedin.com/in/grant-mcconnaughey/">
+                            <span class="icon"><i class="fab fa-linkedin"></i></span>LinkedIn
+                        </a>
+                    </li>
+                    <li class="pure-u-1-2 pure-u-sm-1">
+                        <a href="https://www.goodreads.com/user/show/38578828-grant-mcconnaughey">
+                            <span class="icon"><i class="fab fa-goodreads"></i></span>Goodreads
+                        </a>
+                    </li>
+                    <li class="pure-u-1-2 pure-u-sm-1">
+                        <a href="https://soundcloud.com/grantmcconnaughey">
+                            <span class="icon"><i class="fab fa-soundcloud"></i></span>Soundcloud
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="pure-u-1 pure-u-sm-1-3">
+                <h3>Subscribe</h3>
+
+                <ul class="pure-g">
+                    <li class="pure-u-1-2 pure-u-sm-1">
+                        <a href="https://tinyletter.com/grantmcconnaughey">
+                            <span class="icon"><i class="fas fa-newspaper"></i></span>My Newsletter
+                        </a>
+                    </li>
+                    <li class="pure-u-1-2 pure-u-sm-1">
+                        <a href="https://medium.com/@gmcconnaughey">
+                            <span class="icon"><i class="fab fa-medium"></i></span>Medium
+                        </a>
+                    </li>
+                    <li class="pure-u-1-2 pure-u-sm-1">
+                        <a href="https://dev.to/grantmcconnaughey">
+                            <span class="icon"><i class="fab fa-dev"></i></span>Dev.to
+                        </a>
+                    </li>
+                    <li class="pure-u-1-2 pure-u-sm-1">
+                        <a href="/feed.xml">
+                            <span class="icon"><i class="fas fa-rss"></i></span>RSS
+                        </a>
+                    </li>
+                    <li class="pure-u-1-2 pure-u-sm-1">
+                        <a href="https://github.com/grantmcconnaughey/grantmcconnaughey.github.io">
+                            <span class="icon"><i class="fab fa-github"></i></span>Source
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="pure-u-1 pure-u-sm-1-3">
+                <h3>About Me</h3>
+                <p>My name is Grant McConnaughey. I'm a software developer specializing in Python, Django, Vue.js, and AWS. I lead software teams and mentor others to become leaders themselves.</p>
+
+                <p><i class="far fa-copyright"></i> 2013-<script>document.write(new Date().getFullYear())</script><noscript>2020</noscript> Grant McConnaughey</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.2/fastclick.min.js"></script>
+    <script>
+        window.addEventListener('load', function() {
+            FastClick.attach(document.body);
+        }, false);
+    </script>
+</body>
+</html>
